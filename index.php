@@ -14,12 +14,12 @@
     <div class="container pt-5">
         <div class="my-3 d-flex justify-content-between">
             <h2>list User</h2>
-             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
-            Add User
-        </button>
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                Add User
+            </button>
         </div>
         <table class="table align-middle">
-            <button type="button" class="btn btn-danger" onclick="loadUser();">Refresh</button>
+            <!-- <button type="button" class="btn btn-danger" onclick="loadUser();">Refresh</button> -->
             <thead>
                 <tr>
                     <th>ID</th>
@@ -31,7 +31,7 @@
                 </tr>
             </thead>
             <tbody id="tableUser">
-               
+
             </tbody>
         </table>
         <!-- Button trigger modal -->
@@ -45,7 +45,7 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <form action="" enctype="multipart/form-data" method="post">
+                        <form action="" enctype="multipart/form-data" id="form" method="post">
                             <div class="my-3 form-group">
                                 <input type="text" name="name" id="name" class="form-control rounded-0" placeholder="enter name">
                             </div>
@@ -70,7 +70,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary" onclick="submit();">Save</button>
+                        <button type="button" class="btn btn-primary" onclick="submit();" data-bs-dismiss="modal">Save</button>
                     </div>
                 </div>
             </div>
@@ -79,57 +79,84 @@
 </body>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script>
-    $(document).ready(function(){
+    $(document).ready(function() {
         $('#profile').hide();
-        $('#image').click(function(){
+        $('#image').click(function() {
             $('#profile').click();
         })
         //image preview
-        $('#profile').change(function(){
+        $('#profile').change(function() {
             const file = this.files[0];
-            if(file){
-                $('#image').attr('src',URL.createObjectURL(file));
+            if (file) {
+                $('#image').attr('src', URL.createObjectURL(file));
             }
         })
         loadUser();
     })
-    function loadUser(){
+
+    function deleteUser(id) {
+        if (confirm('Are you sure to delete it 🥹')) {
+            $.ajax({
+                type: "GET",
+                url: "delete.php",
+                data: {
+                    id: id
+                },
+                success: function(response) {
+                    if (response.trim() === "success") {
+                        Swal.fire({
+                            title: "Good job!",
+                            text: "You clicked the button!",
+                            icon: "success"
+                        });
+                        // alert("delete found");
+                        loadUser();
+                    }
+                }
+            });
+        }
+    }
+
+    function loadUser() {
         $.ajax({
             type: "GET",
             url: "fetch.php",
-            success: function (response) {
+            success: function(response) {
                 $('#tableUser').html(response);
             }
         });
     }
-    function submit(){
+
+    function submit() {
         //get value from form
         var name = $('#name').val();
         var gender = $('#gender').val();
         var address = $('#address').val();
         var profile = $('#profile')[0].files;
         //check validate
-        if(!name || !gender || !address){
+        if (!name || !gender || !address) {
             alert("data invalide");
             return;
         }
         //append all data
         const formData = new FormData();
-        formData.append('name',name);
-        formData.append('gender',gender);
-        formData.append('address',address);
-        formData.append('profile',profile[0]);
+        formData.append('name', name);
+        formData.append('gender', gender);
+        formData.append('address', address);
+        formData.append('profile', profile[0]);
         $.ajax({
             type: "POST",
             url: "insert.php",
             data: formData,
-            processData:false,
-            contentType:false,
-            success: function (response) {
-                console.log('data respone',response);
-                if(response === "success"){
-                    alert('data insert success');
-                }else{
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                console.log('data respone', response);
+                if (response === "success") {
+                    // alert('data insert success');
+                    $('form')[0].reset();
+                    loadUser();
+                } else {
                     alert('data insert failse');
                 }
             }
@@ -138,4 +165,6 @@
 
     }
 </script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 </html>
