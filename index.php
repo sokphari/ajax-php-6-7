@@ -14,7 +14,10 @@
     <div class="container pt-5">
         <div class="my-3 d-flex justify-content-between">
             <h2>list User</h2>
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+            <!-- <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                Add User
+            </button> -->
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal" onclick="openModal();">
                 Add User
             </button>
         </div>
@@ -46,6 +49,7 @@
                     </div>
                     <div class="modal-body">
                         <form action="" enctype="multipart/form-data" id="form" method="post">
+                            <input type="hidden" id="editID" name="editID">
                             <div class="my-3 form-group">
                                 <input type="text" name="name" id="name" class="form-control rounded-0" placeholder="enter name">
                             </div>
@@ -70,7 +74,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary" onclick="submit();" data-bs-dismiss="modal">Save</button>
+                        <button type="button" class="btn btn-primary" onclick="SaveUser();" id="btnupdate" data-bs-dismiss="modal">Save</button>
                     </div>
                 </div>
             </div>
@@ -93,7 +97,59 @@
         })
         loadUser();
     })
-
+    let MOOD = "ADD"
+    function openModal(){
+        MOOD = "ADD"
+        $('#exampleModalLabel').text('Add User')
+        $('#name').val('');
+        $('#gender').val('');
+        $('#address').val('');
+        $('#image').attr('src','https://i.pinimg.com/474x/a0/e6/e3/a0e6e3c32c7e810967e818b788ed8ecf.jpg');
+    }   
+    function SaveUser(){
+        if(MOOD === "ADD"){
+            submit();
+        }else{
+            update();
+        }
+    }
+    function update(){
+        //get value from form
+        var id = $('#editID').val();
+        var name = $('#name').val();
+        var gender = $('#gender').val();
+        var address = $('#address').val();
+        var profile = $('#profile')[0].files;
+        //check validate
+        if (!name || !gender || !address) {
+            alert("data invalide");
+            return;
+        }
+        //append all data
+        const formData = new FormData();
+        formData.append('id',id);
+        formData.append('name', name);
+        formData.append('gender', gender);
+        formData.append('address', address);
+        formData.append('profile', profile[0]);
+        $.ajax({
+            type: "POST",
+            url: "update.php",
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                console.log('data respone', response);
+                if (response === "success") {
+                    alert('data update success');
+                    $('form')[0].reset();
+                    loadUser();
+                } else {
+                    alert('data insert failse');
+                }
+            }
+        });
+    }
     function deleteUser(id) {
         if (confirm('Are you sure to delete it 🥹')) {
             $.ajax({
@@ -164,6 +220,27 @@
 
 
     }
+
+    function edite(id){
+        $.ajax({
+            type: "GET",
+            url: "edit.php",
+            data: {id:id},
+            success: function (response) {
+                const user = JSON.parse(response);
+                //preview old data
+                $('#editID').val(user.id);
+                $('#name').val(user.name);
+                $('#gender').val(user.gender);
+                $('#address').val(user.address);
+                $('#image').attr('src','./upload/'+user.profile);
+                $('#exampleModalLabel').text('Edit user');
+                $('#btnupdate').text("Update");
+                $('#exampleModal').modal('show');
+            }
+        });
+    }
+
 </script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 

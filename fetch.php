@@ -10,9 +10,9 @@ if ($res) {
                     <td>'.$row['name'].'</td>
                     <td>'.$row['gender'].'</td>
                     <td><img src="./upload/'.$row['profile'].'" style="border-radius: 50px; width: 100px; height: 100px;" alt=""></td>
-                    <td>PP</td>
+                    <td>'.$row['address'].'</td>
                     <td>
-                        <button class="btn btn-warning" type="button">EDIT</button>
+                        <button class="btn btn-warning" type="button" onclick="edite('.$row['id'].')">EDIT</button>
                         <button class="btn btn-primary" type="button" onclick="deleteUser('.$row['id'].')">DELETE</button>
                     </td>
                 </tr>
