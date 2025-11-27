@@ -222,6 +222,7 @@
     }
 
     function edite(id){
+        MOOD = "UPDATE";
         $.ajax({
             type: "GET",
             url: "edit.php",
